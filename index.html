@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>나의 디지털 생활 프로젝트</title>
+<style>
+:root{--ink:#202533;--muted:#697386;--line:#e6e9f0;--main:#5b63e6;--soft:#eef0ff}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#f4f5ff 0,#f8f9fc 45%,#fff 100%);color:var(--ink);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
+button,input,textarea{font:inherit}.wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+.card{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:0 14px 40px rgba(31,39,74,.08);padding:30px 26px;margin-bottom:16px}
+h1{font-size:clamp(30px,7vw,44px);line-height:1.15;margin:16px 0 12px;letter-spacing:-1.5px}
+h2{font-size:clamp(21px,5vw,28px);line-height:1.35;margin:8px 0 16px;letter-spacing:-.7px}
+p{line-height:1.7}.small{font-size:13px;color:var(--muted)}
+.badge{display:inline-flex;padding:7px 12px;border-radius:999px;background:var(--soft);color:var(--main);font-weight:700;font-size:13px}
+.progress{height:8px;background:#edf0f5;border-radius:99px;margin:14px 0 24px;overflow:hidden}.bar{height:100%;background:var(--main);transition:width .25s}
+.choice{display:block;width:100%;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:16px;margin:0 0 11px;text-align:left;cursor:pointer;color:var(--ink);transition:.15s}
+.choice:hover{border-color:#b9befc;background:#fafaff;transform:translateY(-1px)}
+.btn{border:0;border-radius:16px;background:var(--main);color:#fff;padding:15px 22px;font-weight:800;cursor:pointer;font-size:16px}.btn:hover{filter:brightness(.97)}
+.btn:disabled{background:#c9cdf5;cursor:not-allowed}.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:700}
+.hidden{display:none!important}.score{font-size:60px;font-weight:900;letter-spacing:-3px;margin:6px 0}
+.box{border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:16px;background:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.row .btn{flex:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.tile{border:1.5px solid var(--line);border-radius:18px;padding:16px;background:#fff;text-align:left;cursor:pointer}.tile.done{border-color:var(--main);background:#fafaff}
+.tile .a{display:none;margin-top:8px;font-size:14px;line-height:1.6}.tile.done .a{display:block}
+.chip{display:inline-block;margin:4px;padding:8px 14px;border:1.5px solid var(--line);border-radius:99px;background:#fff;cursor:pointer}.chip.on{background:var(--main);color:#fff;border-color:var(--main)}
+textarea,input[type=text]{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:14px;margin:6px 0 14px}textarea{min-height:90px}
+.area{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:15px}.area .t{flex:1;height:12px;background:#edf0f5;border-radius:99px;overflow:hidden}.area .f{height:100%;background:var(--main)}
+canvas{width:100%;border-radius:18px;border:1px solid var(--line)}
+@media(max-width:520px){.card{padding:24px 20px}.score{font-size:52px}}
+</style></head><body><div class="wrap">
+<div class="card" id="s0" style="padding:0"><div style="padding:34px 28px 12px"><div style="text-align:center"><span class="badge">DIGITAL EDUCATION WEEK</span></div>
+<h1 style="text-align:center;white-space:nowrap;font-size:clamp(24px,7vw,40px)">📱 나의 디지털 점수는?</h1>
+<p style="color:#505a6c;font-size:16px">나는 디지털 생활을 얼마나 잘하고 있을까요?<br>디지털 점수를 확인하고, 올바른 스마트기기 사용을 위한 실천약속을 작성해 봅시다.</p>
+<div style="display:flex;gap:10px;margin-top:14px"><input type="text" id="num" inputmode="numeric" maxlength="4" placeholder="학번 (예: 3201)" style="flex:1;margin-bottom:0"><input type="text" id="nm" maxlength="10" placeholder="이름" style="flex:1;margin-bottom:0"></div><div class="small" id="warn" style="margin-top:8px;min-height:18px"></div></div>
+<div style="padding:8px 28px 30px"><button class="btn" id="go" style="width:100%;padding:17px 20px;font-size:17px">START ▶</button>
+<div class="small" style="text-align:center;margin-top:12px">정답이 있는 검사가 아니에요. 평소 자신의 모습을 생각하며 솔직하게 답해 주세요.</div>
+<div style="text-align:center;margin-top:10px"><a href="#" id="reset" class="small" style="text-decoration:underline">처음부터 다시 하기</a></div></div></div>
+<div id="app" class="hidden"></div><div id="tch" class="hidden"></div></div>
+<script>
+const Q=[["📱 디지털 자기관리","스마트기기를 사용하다가 계획했던 시간보다 오래 사용하는 경우가 있다.",1],["📱 디지털 자기관리","해야 할 일을 미루고 스마트기기를 사용하는 경우가 있다.",1],["📱 디지털 자기관리","잠자리에 들기 전 스마트기기를 사용하는 편이다.",1],["📱 디지털 자기관리","스마트기기를 사용하지 않을 때도 계속 확인하고 싶을 때가 있다.",1],
+["🤝 디지털 책임과 존중","온라인에서도 다른 사람을 존중하는 말과 행동을 하려고 한다."],["🤝 디지털 책임과 존중","다른 사람의 사진이나 영상을 온라인에 올릴 때 상대방의 동의를 확인한다."],["🤝 디지털 책임과 존중","온라인에 남긴 글이나 사진이 다른 사람에게 영향을 줄 수 있다는 점을 생각하며 행동한다."],
+["🔐 디지털 안전","나의 개인정보를 온라인에서 함부로 공개하지 않는다."],["🔐 디지털 안전","출처가 불분명한 링크나 메시지를 받으면 바로 누르지 않고 확인한다."],["🔐 디지털 안전","온라인에서 금전이나 개인정보를 요구받았을 때 의심하고 주변에 도움을 요청할 수 있다."],
+["🤖 정보·AI 활용","인터넷에서 본 정보를 그대로 믿기보다 사실인지 확인하려고 한다."],["🤖 정보·AI 활용","AI가 알려준 내용도 틀릴 수 있다는 점을 생각하며 사용한다."]];
+const L=["전혀 그렇지 않다","그렇지 않다","보통이다","그렇다","매우 그렇다"];
+const CASES=[["⏰","자기관리","‘5분만’ 하다가 1시간","영상을 한 편만 보려다 계속 이어 보게 된 경험이 있나요?","추천 영상·알림은 계속 사용하도록 만들어져 있어요. 시작 전에 끝낼 시간을 정하고 타이머를 쓰면 스스로 조절하기 쉬워요."],
+["🌙","자기관리","잠들기 전 화면","자기 전 스마트기기를 오래 쓰면 어떤 일이 생길까요?","잠들기 전 사용은 수면 시간을 줄이기 쉬워요. 충전기를 침대에서 먼 곳에 두는 것도 좋은 방법이에요."],
+["📷","책임과 존중","친구 사진, 올려도 될까?","친구의 웃긴 사진을 단체방에 올리려 해요.","내가 재미있어도 친구는 불편할 수 있어요. 올리기 전에 반드시 동의를 구하고, 싫다고 하면 올리지 않거나 삭제해야 해요."],
+["💬","책임과 존중","한 번 쓴 글은 오래 남아요","온라인에 쓴 말은 지워도 누군가 저장했을 수 있어요.","온라인 글과 사진은 빠르게 퍼질 수 있어요. 보내기 전에 ‘직접 말해도 괜찮은 내용일까?’ 한 번 더 생각해요."],
+["🔗","안전","모르는 링크가 왔어요","‘무료 이벤트 당첨!’ 메시지가 도착했어요.","출처가 불분명한 링크는 누르지 않고, 개인정보나 금전을 요구하면 멈추고 부모님·선생님께 알려요."],
+["🤖","정보·AI","AI의 답, 그대로 믿어도 될까?","AI가 알려 준 내용이 사실처럼 보여요.","AI도 틀리거나 지어낸 내용을 말할 수 있어요. 믿을 만한 자료로 다시 확인하고, 내 생각은 내가 직접 정리해요."]];
+const PRACT={"⏱ 사용 시간":["사용 시간 정해 두고 타이머 쓰기","식사·공부 중에는 기기 멀리 두기","영상은 한 편만 보고 멈추기","알림 끄거나 줄이기"],"🌙 수면·건강":["잠들기 30분 전부터 기기 끄기","충전기를 침대에서 먼 곳에 두기","걸으면서 화면 보지 않기","틈틈이 눈과 목 쉬게 하기"],"🤝 예절·존중":["친구 사진·영상은 동의받고 올리기","보내기 전 한 번 더 읽어 보기","수업·대화 중에는 기기 넣어 두기","온라인에서도 존중하는 말 쓰기"],"🔐 안전·정보":["모르는 링크는 누르지 않기","개인정보는 함부로 공개하지 않기","정보는 출처를 한 번 더 확인하기","AI의 답은 확인하고 내 생각을 더하기"]};
+const KEY="digital_project_v1";const ST={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};let S=(()=>{try{return JSON.parse(ST.get(KEY)||"null")}catch(e){return null}})()||{step:1,ans:[],read:[],words:[],p1:"",p2:"",p3:"",promise:"",who:""};
+const $=id=>document.getElementById(id),save=()=>ST.set(KEY,JSON.stringify(S));
+const app=$("app"),cat=["📱 디지털 자기관리","🤝 디지털 책임과 존중","🔐 디지털 안전","🤖 정보·AI 활용"];
+function sc(i){const v=S.ans[i];return Q[i][2]?6-v:v}
+function total(){return S.ans.reduce((a,_,i)=>a+sc(i),0)}
+function type(t){return t<=29?["🌱 디지털 생활 새싹","작은 습관 하나부터 바꿔 봅시다."]:t<=41?["🌿 디지털 생활 실천가","몇 가지 습관을 더 다듬어 봅시다."]:t<=51?["🌳 디지털 생활 균형가","지금의 좋은 습관을 이어 가 봅시다."]:["⭐ 디지털 생활 길잡이","좋은 습관으로 친구들과 건강한 디지털 문화를 만들어 봅시다."]}
+function head(n,t){return `<span class="badge">${n}단계 · ${t}</span><div class="progress"><div class="bar" style="width:${n/6*100}%"></div></div>`}
+function nav(prevOk,nextOk,nextLabel){return `<div class="row">${S.step>1?'<button class="btn ghost" onclick="go(S.step-1)">← 이전</button>':''}<button class="btn" id="nx" ${nextOk?'':'disabled'} onclick="go(S.step+1)">${nextLabel||'저장하고 다음으로 →'}</button></div>`}
+function go(n){S.step=n;save();render();scrollTo(0,0)}
+function weak(){const a=cat.map(c=>{let s=0,m=0;Q.forEach((q,i)=>{if(q[0]==c){s+=sc(i);m+=5}});return[c,s,m]});return a}
+const ENDPOINT="https://script.google.com/a/macros/anyang-g.ms.kr/s/AKfycbwUfG4EhJABArVsYuiqo1y7o_J1C2gRJtwaWqIJCGHvJhUQ1Au0Lh5pwO4UVY0hUY9xTQ/exec";/* ← 배포한 Apps Script 웹앱 URL을 여기에 붙여넣으세요 */
+function payload(){const ar={};weak().forEach(a=>ar[a[0].replace(/^\S+\s/,"")]=a[1]);return{num:S.num,name:S.name,total:total(),type:type(total())[0].replace(/^\S+\s/,""),a1:ar["디지털 자기관리"],a2:ar["디지털 책임과 존중"],a3:ar["디지털 안전"],a4:ar["정보·AI 활용"],answers:S.ans.join(""),words:S.words.join(" / "),p1:S.p1,p2:S.p2,p3:S.p3,coping:S.promise,sentAt:new Date().toLocaleString("ko-KR")}}
+function submit(){const el=$("sub");if(!ENDPOINT){if(el)el.innerHTML="";return}
+if(el)el.innerHTML="⏳ 선생님께 결과를 보내는 중...";
+fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload())}).then(()=>{S.sent=1;save();if(el)el.innerHTML="✅ 선생님께 결과를 보냈어요. ("+new Date().toLocaleTimeString("ko-KR")+")"}).catch(()=>{if(el)el.innerHTML='⚠ 전송에 실패했어요. 인터넷 연결을 확인하고 <a href="#" onclick="submit();return false">다시 보내기</a>'})}
+function render(){let h="";const st=S.step;
+if(st==1){const i=S.ans.length;if(i>=Q.length){go(2);return}
+h=`<div class="card">${head(1,"나의 디지털 점수 검사")}<span class="badge">${Q[i][0]}</span><p class="small">${i+1} / ${Q.length}</p><h2>${Q[i][1]}</h2>${L.map((l,n)=>`<button class="choice" onclick="ans(${n+1})">${n+1}  ${l}</button>`).join("")}${i?'<button class="btn ghost" onclick="S.ans.pop();save();render()">← 이전 문항</button>':''}</div>`}
+if(st==2){const t=total(),ty=type(t);h=`<div class="card">${head(2,"결과 분석")}<h2>🎉 나의 디지털 점수</h2><div class="box" style="text-align:center;background:linear-gradient(135deg,#f1f2ff,#f8f9ff)"><div class="score">${t}<span style="font-size:22px;letter-spacing:0;color:#697386"> / 60점</span></div><div style="font-size:22px;font-weight:700">${ty[0]}</div><p>${ty[1]}</p></div>
+<div class="box"><b>영역별 점수</b>${weak().map(a=>`<div class="area"><span style="width:170px">${a[0]}</span><div class="t"><div class="f" style="width:${a[1]/a[2]*100}%"></div></div><span>${a[1]}/${a[2]}</span></div>`).join("")}</div>
+<div class="box"><b>💡 내가 더 신경 쓰면 좋은 영역</b><p>가장 낮은 영역: <b>${weak().sort((a,b)=>a[1]/a[2]-b[1]/b[2])[0][0]}</b><br>검사 점수는 나를 평가하는 것이 아니라 생활을 돌아보는 참고 자료예요.</p></div>${nav(1,1)}</div>`}
+if(st==3){h=`<div class="card">${head(3,"생활 속 상황 읽기")}<h2>이런 상황, 나라면 어떻게 할까요?</h2><p>6개의 카드를 모두 눌러 읽어야 다음 단계로 갈 수 있어요.</p><div class="grid">${CASES.map((c,i)=>`<button class="tile ${S.read.includes(i)?'done':''}" onclick="rd(${i})"><div style="font-size:30px">${c[0]}</div><span class="small">${c[1]}</span><br><b>${c[2]}</b><p class="small">${c[3]}</p><div class="a">${c[4]}</div></button>`).join("")}</div><p>읽은 카드 <b>${S.read.length} / 6</b></p>${nav(1,S.read.length==6)}</div>`}
+if(st==4){h=`<div class="card">${head(4,"실천 영역 고르기")}<h2>내가 지키고 싶은 실천을 골라보세요.</h2><p>검사 결과와 읽은 상황을 떠올리며 <b>1~3개</b> 선택하세요. (${S.words.length} / 3)</p>${Object.entries(PRACT).map(([k,v])=>`<div class="box"><b>${k}</b><br>${v.map(w=>`<span class="chip ${S.words.includes(w)?'on':''}" onclick="wd(this.dataset.w)" data-w="${w}">${w}</span>`).join("")}</div>`).join("")}${nav(1,S.words.length>=1)}</div>`}
+if(st==5){h=`<div class="card">${head(5,"나의 실천 약속 쓰기")}<h2>올바른 스마트기기 사용을 위한 나만의 약속</h2><div class="box" style="line-height:2">✔ 구체적인가요? (언제·어디서·무엇을)<br>✔ 매일 지킬 수 있나요?<br>✔ 확인할 수 있나요?<br>✔ 내 생각이 담겼나요?</div>
+<b>🌱 약속 1</b> <span class="small">(필수, 10자 이상)</span><input type="text" maxlength="80" id="p1" value="${S.p1}" oninput="S.p1=this.value;chk()">
+<b>🌱 약속 2</b> <span class="small">(선택)</span><input type="text" maxlength="80" id="p2" value="${S.p2}" oninput="S.p2=this.value;chk()">
+<b>🌱 약속 3</b> <span class="small">(선택)</span><input type="text" maxlength="80" id="p3" value="${S.p3}" oninput="S.p3=this.value;chk()">
+<b>💬 지키기 어려울 때 나의 대처</b> <span class="small">(10자 이상, 100자 이내)</span><textarea maxlength="100" id="pm" oninput="S.promise=this.value;chk()">${S.promise}</textarea>${nav(1,0,"저장하고 약속서 보기 →")}</div>`}
+if(st==6){h=`<div class="card">${head(6,"나의 실천 약속서")}<h2>🎉 완성! 디지털 실천 약속서</h2><div class="box small" id="sub" style="margin:0 0 14px"></div><canvas id="cv" width="1080" height="1350"></canvas><div class="row"><button class="btn" onclick="dl()">⬇ 약속서 저장하기</button><button class="btn ghost" onclick="go(5)">← 5단계로 (수정 후 다시 제출)</button><button class="btn ghost" onclick="if(confirm('처음부터 다시 할까요?')){ST.del(KEY);location.reload()}">🏠 처음으로</button></div></div>`}
+app.innerHTML=h;if(st==5)chk();if(st==6){poster();submit()}}
+function ans(v){S.ans.push(v);save();render()}
+function rd(i){if(!S.read.includes(i))S.read.push(i);save();render()}
+function wd(w){const k=S.words.indexOf(w);if(k>=0)S.words.splice(k,1);else if(S.words.length<6)S.words.push(w);save();render()}
+function chk(){const b=$("nx");if(b&&S.step==5)b.disabled=!(S.p1.trim().length>=10&&S.promise.trim().length>=10);save()}
+function wrap(c,t,x,y,w,lh){let l="",yy=y;for(const ch of t){if(ch=="\n"||c.measureText(l+ch).width>w){c.fillText(l,x,yy);yy+=lh;l=ch=="\n"?"":ch}else l+=ch}c.fillText(l,x,yy);return yy}
+const LOGO=new Image();LOGO.src="data:image/png;base64,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";LOGO.onload=()=>{if(S.step==6)poster()};
+function lines(c,t,w){const out=[];let l="";for(const ch of String(t)){if(ch=="\n"||c.measureText(l+ch).width>w){out.push(l);l=ch=="\n"?"":ch}else l+=ch}out.push(l);return out}
+function layout(c,draw){const X=110,W=860;let y=60;c.textAlign="left";
+const gap=(n)=>{y+=n};
+const P=(t,fs,color,bold,indent)=>{c.font=(bold?"bold ":"")+fs+"px sans-serif";c.fillStyle=color;const L=lines(c,t,W-(indent||0));L.forEach(l=>{y+=fs*1.55;if(draw)c.fillText(l,X+(indent||0),y)});};
+// header
+if(draw){c.textAlign="center";c.fillStyle="#5b63e6";c.font="bold 26px sans-serif";c.fillText("DIGITAL EDUCATION WEEK",540,y+60);
+if(LOGO.complete&&LOGO.naturalWidth){c.imageSmoothingQuality="high";c.drawImage(LOGO,540-30,y+80,60,Math.round(60*LOGO.naturalHeight/LOGO.naturalWidth))}
+c.fillStyle="#222";c.font="bold 52px sans-serif";c.fillText("디지털 실천 약속서",540,y+235);c.fillStyle="#666";c.font="27px sans-serif";c.fillText(S.num+" "+S.name+"  ·  디지털 점수 "+total()+"/60  "+type(total())[0],540,y+290);c.textAlign="left"}
+y+=320;
+const sec=(t)=>{gap(34);y+=34;if(draw){c.fillStyle="#5b63e6";c.font="bold 29px sans-serif";c.fillText(t,X,y);c.fillStyle="#e3e6fb";c.fillRect(X,y+14,W,3)}y+=22};
+sec("내가 고른 실천");S.words.forEach(w=>{P("✔  "+w,27,"#333",0,0);gap(6)});
+sec("나의 실천 약속");[S.p1,S.p2,S.p3].filter(x=>x&&x.trim()).forEach((p,i)=>{c.font="29px sans-serif";const L=lines(c,p,W-46);if(draw){c.fillStyle="#5b63e6";c.font="bold 29px sans-serif";c.fillText((i+1)+".",X,y+29*1.55)}c.font="29px sans-serif";c.fillStyle="#222";L.forEach(l=>{y+=29*1.55;if(draw)c.fillText(l,X+46,y)});gap(12)});
+sec("지키기 어려울 때 나의 대처");P(S.promise,27,"#333",0,0);
+gap(60);if(draw){c.fillStyle="#666";c.font="26px sans-serif";c.fillText("나는 위의 약속을 지키기 위해 노력하겠습니다.",X,y+30);c.textAlign="right";c.fillText("서명: "+S.name+"  (인)",X+W,y+86);c.textAlign="left"}
+y+=110;return y+60}
+function poster(){const cv=$("cv"),t=document.createElement("canvas").getContext("2d");const H=Math.max(1100,layout(t,false));cv.width=1080;cv.height=H;const c=cv.getContext("2d");
+c.fillStyle="#5b63e6";c.fillRect(0,0,1080,H);c.fillStyle="#fff";c.beginPath();c.roundRect(40,40,1000,H-80,36);c.fill();layout(c,true)}
+function dl(){const a=document.createElement("a");a.download="디지털_실천약속서.png";a.href=$("cv").toDataURL("image/png");a.click()}
+function chkStart(){const n=$("num").value.trim(),m=$("nm").value.trim();$("go").style.opacity=(n&&m)?1:.55;if(n&&m)$("warn").textContent=""}
+function fixNum(){$("num").value=$("num").value.replace(/\D/g,"");chkStart()}
+["input","change","keyup"].forEach(ev=>{$("num").addEventListener(ev,fixNum);$("nm").addEventListener(ev,chkStart)});
+$("go").addEventListener("click",()=>{const n=$("num").value.trim(),m=$("nm").value.trim();if(!n||!m){$("warn").textContent="⚠ 학번과 이름을 모두 입력해야 시작할 수 있어요.";$("warn").style.color="#d32f2f";(n?$("nm"):$("num")).focus();return}S.num=n;S.name=m;S.who=n+" "+m;save();$("s0").classList.add("hidden");app.classList.remove("hidden");render()});
+$("reset").onclick=e=>{e.preventDefault();if(confirm("저장된 활동을 지울까요?")){ST.del(KEY);location.reload()}};
+if(S.num&&S.name){$("num").value=S.num;$("nm").value=S.name;$("go").textContent="이어하기 ▶"}chkStart();
+
+/* ===== 교사용 화면: 주소 뒤에 ?teacher 를 붙여 접속 ===== */
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+let TR=[],TH=[];
+function teacherInit(){$("s0").classList.add("hidden");app.classList.add("hidden");const t=$("tch");t.classList.remove("hidden");
+t.innerHTML=`<div class="card"><span class="badge">TEACHER</span><h1 style="font-size:30px">👩‍🏫 담임교사 확인</h1><p class="small">우리 반 학생들의 제출 결과를 조회합니다. 비밀번호는 학교에서 안내받은 번호를 입력하세요.</p>
+<div style="display:flex;gap:10px"><select id="tg" style="flex:1;padding:13px;border:1.5px solid #e6e9f0;border-radius:14px"><option>1</option><option>2</option><option selected>3</option></select><input type="text" id="tb" inputmode="numeric" placeholder="반 (예: 2)" style="flex:1;margin-bottom:0"></div>
+<input type="password" id="tp" placeholder="비밀번호" style="margin-top:10px"><button class="btn" style="width:100%" onclick="teacherLoad()">조회하기</button><div class="small" id="tmsg" style="margin-top:10px"></div></div><div id="tres"></div>`}
+function teacherLoad(){const g=$("tg").value,b=$("tb").value.trim(),p=$("tp").value;if(!ENDPOINT){$("tmsg").textContent="⚠ 아직 서버(ENDPOINT)가 연결되지 않았어요.";return}if(!b||!p){$("tmsg").textContent="⚠ 반과 비밀번호를 입력해 주세요.";return}
+$("tmsg").textContent="⏳ 불러오는 중...";
+fetch(ENDPOINT+"?action=list&grade="+encodeURIComponent(g)+"&ban="+encodeURIComponent(b)+"&pw="+encodeURIComponent(p)).then(r=>r.json()).then(d=>{if(d.error){$("tmsg").textContent="⚠ "+d.error;$("tres").innerHTML="";return}TH=d.head;TR=d.rows;$("tmsg").textContent="";teacherShow(g,b)}).catch(()=>{$("tmsg").textContent="⚠ 불러오지 못했어요. 연결과 배포 설정을 확인하세요."})}
+function teacherShow(g,b){const n=TR.length;const avg=n?Math.round(TR.reduce((a,r)=>a+Number(r[2]||0),0)/n*10)/10:0;
+const rows=TR.map((r,i)=>`<tr style="cursor:pointer;border-top:1px solid #e6e9f0" onclick="td(${i})"><td style="padding:10px 6px">${esc(r[0])}</td><td>${esc(r[1])}</td><td><b>${esc(r[2])}</b></td><td>${esc(r[3])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td>${esc(r[6])}</td><td>${esc(r[7])}</td></tr><tr id="d${i}" class="hidden"><td colspan="8" style="padding:12px;background:#f7f8fc;line-height:1.8">${tdetail(TR[i])}</td></tr>`).join("");
+$("tres").innerHTML=`<div class="card"><h2>${esc(g)}학년 ${esc(b)}반 · 제출 ${n}명${n?" · 평균 "+avg+"점":""}</h2>${n?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px;min-width:560px"><tr style="text-align:left;color:#697386"><th style="padding:8px 6px">학번</th><th>이름</th><th>총점</th><th>유형</th><th>자기관리</th><th>존중</th><th>안전</th><th>정보·AI</th></tr>${rows}</table></div><p class="small">학생 행을 누르면 실천 약속을 볼 수 있어요. (영역별 만점 15점 · 총점 60점)</p><button class="btn ghost" onclick="tcsv()">⬇ 엑셀(CSV)로 저장</button>`:"<p>아직 제출한 학생이 없어요.</p>"}</div>`}
+function tdetail(r){const lab=["","","","","","","","","실천 영역","약속 1","약속 2","약속 3","어려울 때 대처","제출 시각"];let h="";[8,9,10,11,12,13].forEach(k=>{if(r[k])h+=`<div><b>${lab[k]}</b> ${esc(r[k])}</div>`});return h}
+function td(i){$("d"+i).classList.toggle("hidden")}
+function tcsv(){const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';const t=[TH,...TR].map(r=>r.map(q).join(",")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv;charset=utf-8"}));a.download="실천약속_결과.csv";a.click()}
+if(/[?&]teacher/.test(location.search))teacherInit();
+</script></body></html>
