@@ -58,7 +58,7 @@ function head(n,t){return `<span class="badge">${n}단계 · ${t}</span><div cla
 function nav(prevOk,nextOk,nextLabel){return `<div class="row">${S.step>1?'<button class="btn ghost" onclick="go(S.step-1)">← 이전</button>':''}<button class="btn" id="nx" ${nextOk?'':'disabled'} onclick="go(S.step+1)">${nextLabel||'저장하고 다음으로 →'}</button></div>`}
 function go(n){S.step=n;save();render();scrollTo(0,0)}
 function weak(){const a=cat.map(c=>{let s=0,m=0;Q.forEach((q,i)=>{if(q[0]==c){s+=sc(i);m+=5}});return[c,s,m]});return a}
-const ENDPOINT="";/* ← 배포한 Apps Script 웹앱 URL을 여기에 붙여넣으세요 */
+const ENDPOINT="https://script.google.com/macros/s/AKfycbwyjbC_RFasu8b5zSYpH8G0uDzNc-fSlNPUV-l4qaHNcLUpB7M0NNbXNmN9ValkwkUWRA/exec";/* ← 배포한 Apps Script 웹앱 URL을 여기에 붙여넣으세요 */
 function payload(){const ar={};weak().forEach(a=>ar[a[0].replace(/^\S+\s/,"")]=a[1]);return{num:S.num,name:S.name,total:total(),type:type(total())[0].replace(/^\S+\s/,""),a1:ar["디지털 자기관리"],a2:ar["디지털 책임과 존중"],a3:ar["디지털 안전"],a4:ar["정보·AI 활용"],answers:S.ans.join(""),words:S.words.join(" / "),p1:S.p1,p2:S.p2,p3:S.p3,coping:S.promise,sentAt:new Date().toLocaleString("ko-KR")}}
 function submit(){const el=$("sub");if(!ENDPOINT){if(el)el.innerHTML="";return}
 if(el)el.innerHTML="⏳ 선생님께 결과를 보내는 중...";
