@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache">
 <title>나의 디지털 생활 프로젝트</title>
 <style>
 :root{--ink:#202533;--muted:#697386;--line:#e6e9f0;--main:#5b63e6;--soft:#eef0ff}
@@ -35,6 +35,7 @@ canvas{width:100%;border-radius:18px;border:1px solid var(--line)}
 <div class="small" style="text-align:center;margin-top:12px">정답이 있는 검사가 아니에요. 평소 자신의 모습을 생각하며 솔직하게 답해 주세요.</div>
 <div style="text-align:center;margin-top:10px"><a href="#" id="reset" class="small" style="text-decoration:underline">처음부터 다시 하기</a></div></div></div>
 <div id="app" class="hidden"></div><div id="tch" class="hidden"></div></div>
+<script>window.__v="v7";window.addEventListener("error",function(e){var w=document.getElementById("warn");if(w){w.style.color="#d32f2f";w.textContent="⚠ 오류가 발생했어요 ("+(e.message||"알 수 없음")+" / 줄 "+(e.lineno||"?")+"). 이 문구를 선생님께 알려 주세요."}});</script>
 <script>
 const Q=[["📱 디지털 자기관리","스마트기기를 사용하다가 계획했던 시간보다 오래 사용하는 경우가 있다.",1],["📱 디지털 자기관리","해야 할 일을 미루고 스마트기기를 사용하는 경우가 있다.",1],["📱 디지털 자기관리","잠자리에 들기 전 스마트기기를 사용하는 편이다.",1],["📱 디지털 자기관리","스마트기기를 사용하지 않을 때도 계속 확인하고 싶을 때가 있다.",1],
 ["🤝 디지털 책임과 존중","온라인에서도 다른 사람을 존중하는 말과 행동을 하려고 한다."],["🤝 디지털 책임과 존중","다른 사람의 사진이나 영상을 온라인에 올릴 때 상대방의 동의를 확인한다."],["🤝 디지털 책임과 존중","온라인에 남긴 글이나 사진이 다른 사람에게 영향을 줄 수 있다는 점을 생각하며 행동한다."],
@@ -106,12 +107,12 @@ sec("지키기 어려울 때 나의 대처");P(S.promise,27,"#333",0,0);
 gap(60);if(draw){c.fillStyle="#666";c.font="26px sans-serif";c.fillText("나는 위의 약속을 지키기 위해 노력하겠습니다.",X,y+30);c.textAlign="right";c.fillText("서명: "+S.name+"  (인)",X+W,y+86);c.textAlign="left"}
 y+=110;return y+60}
 function poster(){const cv=$("cv"),t=document.createElement("canvas").getContext("2d");const H=Math.max(1100,layout(t,false));cv.width=1080;cv.height=H;const c=cv.getContext("2d");
-c.fillStyle="#5b63e6";c.fillRect(0,0,1080,H);c.fillStyle="#fff";c.beginPath();c.roundRect(40,40,1000,H-80,36);c.fill();layout(c,true)}
+c.fillStyle="#5b63e6";c.fillRect(0,0,1080,H);c.fillStyle="#fff";c.beginPath();if(c.roundRect)c.roundRect(40,40,1000,H-80,36);else c.rect(40,40,1000,H-80);c.fill();layout(c,true)}
 function dl(){const a=document.createElement("a");a.download="디지털_실천약속서.png";a.href=$("cv").toDataURL("image/png");a.click()}
 function chkStart(){const n=$("num").value.trim(),m=$("nm").value.trim();$("go").style.opacity=(n&&m)?1:.55;if(n&&m)$("warn").textContent=""}
 function fixNum(){$("num").value=$("num").value.replace(/[^0-9]/g,"");chkStart()}
 ["input","change","keyup"].forEach(ev=>{$("num").addEventListener(ev,fixNum);$("nm").addEventListener(ev,chkStart)});
-$("go").addEventListener("click",()=>{const n=$("num").value.trim(),m=$("nm").value.trim();if(!n||!m){$("warn").textContent="⚠ 학번과 이름을 모두 입력해야 시작할 수 있어요.";$("warn").style.color="#d32f2f";(n?$("nm"):$("num")).focus();return}S.num=n;S.name=m;S.who=n+" "+m;save();$("s0").classList.add("hidden");app.classList.remove("hidden");render()});
+$("go").addEventListener("click",()=>{try{const n=$("num").value.trim(),m=$("nm").value.trim();if(!n||!m){$("warn").textContent="⚠ 학번과 이름을 모두 입력해야 시작할 수 있어요.";$("warn").style.color="#d32f2f";(n?$("nm"):$("num")).focus();return}if(n.length!==4){$("warn").textContent="⚠ 학번은 숫자 4자리로 입력해 주세요. (예: 3201)";$("warn").style.color="#d32f2f";$("num").focus();return}S.num=n;S.name=m;S.who=n+" "+m;save();$("s0").classList.add("hidden");app.classList.remove("hidden");render()}catch(err){$("warn").style.color="#d32f2f";$("warn").textContent="⚠ 시작 중 오류: "+err.message}});
 $("reset").onclick=e=>{e.preventDefault();if(confirm("저장된 활동을 지울까요?")){ST.del(KEY);location.reload()}};
 if(S.num&&S.name){$("num").value=S.num;$("nm").value=S.name;$("go").textContent="이어하기 ▶"}chkStart();
 
