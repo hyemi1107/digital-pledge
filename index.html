@@ -49,6 +49,8 @@ const CASES=[["⏰","자기관리","‘5분만’ 하다가 1시간","영상을 
 ["🤖","정보·AI","AI의 답, 그대로 믿어도 될까?","AI가 알려 준 내용이 사실처럼 보여요.","AI도 틀리거나 지어낸 내용을 말할 수 있어요. 믿을 만한 자료로 다시 확인하고, 내 생각은 내가 직접 정리해요."]];
 const PRACT={"⏱ 사용 시간":["사용 시간 정해 두고 타이머 쓰기","식사·공부 중에는 기기 멀리 두기","영상은 한 편만 보고 멈추기","알림 끄거나 줄이기"],"🌙 수면·건강":["잠들기 30분 전부터 기기 끄기","충전기를 침대에서 먼 곳에 두기","걸으면서 화면 보지 않기","틈틈이 눈과 목 쉬게 하기"],"🤝 예절·존중":["친구 사진·영상은 동의받고 올리기","보내기 전 한 번 더 읽어 보기","수업·대화 중에는 기기 넣어 두기","온라인에서도 존중하는 말 쓰기"],"🔐 안전·정보":["모르는 링크는 누르지 않기","개인정보는 함부로 공개하지 않기","정보는 출처를 한 번 더 확인하기","AI의 답은 확인하고 내 생각을 더하기"]};
 const KEY="digital_project_v1";const ST={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};let S=(()=>{try{return JSON.parse(ST.get(KEY)||"null")}catch(e){return null}})()||{step:1,ans:[],read:[],words:[],p1:"",p2:"",p3:"",promise:"",who:""};
+(function(){const ok=Array.isArray(S.ans)&&Array.isArray(S.read)&&Array.isArray(S.words);if(!ok||!(S.step>=1&&S.step<=6)||S.ans.length>12){const n=S.num,m=S.name;S={step:1,ans:[],read:[],words:[],p1:"",p2:"",p3:"",promise:"",who:"",num:n,name:m}}
+S.p1=S.p1||"";S.p2=S.p2||"";S.p3=S.p3||"";S.promise=S.promise||"";if(S.ans.length>=12&&S.step==1)S.step=2})();
 const $=id=>document.getElementById(id),save=()=>ST.set(KEY,JSON.stringify(S));
 const app=$("app"),cat=["📱 디지털 자기관리","🤝 디지털 책임과 존중","🔐 디지털 안전","🤖 정보·AI 활용"];
 function sc(i){const v=S.ans[i];return Q[i][2]?6-v:v}
@@ -58,7 +60,7 @@ function head(n,t){return `<span class="badge">${n}단계 · ${t}</span><div cla
 function nav(prevOk,nextOk,nextLabel){return `<div class="row">${S.step>1?'<button class="btn ghost" onclick="go(S.step-1)">← 이전</button>':''}<button class="btn" id="nx" ${nextOk?'':'disabled'} onclick="go(S.step+1)">${nextLabel||'저장하고 다음으로 →'}</button></div>`}
 function go(n){S.step=n;save();render();scrollTo(0,0)}
 function weak(){const a=cat.map(c=>{let s=0,m=0;Q.forEach((q,i)=>{if(q[0]==c){s+=sc(i);m+=5}});return[c,s,m]});return a}
-const ENDPOINT="https://script.google.com/macros/s/AKfycbwO32O4caWGCIfJvqJHEF8oQjHEEWdxwSX4kb1x0MBy-irOBr-Z6mJxai_j05rHiyQVQA/exec";/* ← 배포한 Apps Script 웹앱 URL을 여기에 붙여넣으세요 */
+const ENDPOINT="https://script.google.com/macros/s/AKfycbz0WCWXmZKR8jZFQPCmYTzThFMLVN7IcctqYQfFhI3rlpyv5lkyRNeKV-Q3uzY01o1sHg/exec";/* ← 배포한 Apps Script 웹앱 URL을 여기에 붙여넣으세요 */
 function payload(){const ar={};weak().forEach(a=>ar[a[0].replace(/^[^ ]+ /,"")]=a[1]);return{num:S.num,name:S.name,total:total(),type:type(total())[0].replace(/^[^ ]+ /,""),a1:ar["디지털 자기관리"],a2:ar["디지털 책임과 존중"],a3:ar["디지털 안전"],a4:ar["정보·AI 활용"],answers:S.ans.join(""),words:S.words.join(" / "),p1:S.p1,p2:S.p2,p3:S.p3,coping:S.promise,sentAt:new Date().toLocaleString("ko-KR")}}
 function submit(){const el=$("sub");if(!ENDPOINT){if(el)el.innerHTML="";return}
 const say=h=>{if(el)el.innerHTML=h};
