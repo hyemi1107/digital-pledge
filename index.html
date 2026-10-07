@@ -58,11 +58,15 @@ function head(n,t){return `<span class="badge">${n}단계 · ${t}</span><div cla
 function nav(prevOk,nextOk,nextLabel){return `<div class="row">${S.step>1?'<button class="btn ghost" onclick="go(S.step-1)">← 이전</button>':''}<button class="btn" id="nx" ${nextOk?'':'disabled'} onclick="go(S.step+1)">${nextLabel||'저장하고 다음으로 →'}</button></div>`}
 function go(n){S.step=n;save();render();scrollTo(0,0)}
 function weak(){const a=cat.map(c=>{let s=0,m=0;Q.forEach((q,i)=>{if(q[0]==c){s+=sc(i);m+=5}});return[c,s,m]});return a}
-const ENDPOINT="https://script.google.com/macros/s/AKfycbwyjbC_RFasu8b5zSYpH8G0uDzNc-fSlNPUV-l4qaHNcLUpB7M0NNbXNmN9ValkwkUWRA/exec";/* ← 배포한 Apps Script 웹앱 URL을 여기에 붙여넣으세요 */
-function payload(){const ar={};weak().forEach(a=>ar[a[0].replace(/^\S+\s/,"")]=a[1]);return{num:S.num,name:S.name,total:total(),type:type(total())[0].replace(/^\S+\s/,""),a1:ar["디지털 자기관리"],a2:ar["디지털 책임과 존중"],a3:ar["디지털 안전"],a4:ar["정보·AI 활용"],answers:S.ans.join(""),words:S.words.join(" / "),p1:S.p1,p2:S.p2,p3:S.p3,coping:S.promise,sentAt:new Date().toLocaleString("ko-KR")}}
+const ENDPOINT="https://script.google.com/macros/s/AKfycbx_JxvOmygdRN5yxpf9idMQBXHpFcZf8ifT5hwJdiKB8ePRhCAUDDyMiryximi8RjElYg/exec";/* ← 배포한 Apps Script 웹앱 URL을 여기에 붙여넣으세요 */
+function payload(){const ar={};weak().forEach(a=>ar[a[0].replace(/^[^ ]+ /,"")]=a[1]);return{num:S.num,name:S.name,total:total(),type:type(total())[0].replace(/^[^ ]+ /,""),a1:ar["디지털 자기관리"],a2:ar["디지털 책임과 존중"],a3:ar["디지털 안전"],a4:ar["정보·AI 활용"],answers:S.ans.join(""),words:S.words.join(" / "),p1:S.p1,p2:S.p2,p3:S.p3,coping:S.promise,sentAt:new Date().toLocaleString("ko-KR")}}
 function submit(){const el=$("sub");if(!ENDPOINT){if(el)el.innerHTML="";return}
-if(el)el.innerHTML="⏳ 선생님께 결과를 보내는 중...";
-fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload())}).then(()=>{S.sent=1;save();if(el)el.innerHTML="✅ 선생님께 결과를 보냈어요. ("+new Date().toLocaleTimeString("ko-KR")+")"}).catch(()=>{if(el)el.innerHTML='⚠ 전송에 실패했어요. 인터넷 연결을 확인하고 <a href="#" onclick="submit();return false">다시 보내기</a>'})}
+const say=h=>{if(el)el.innerHTML=h};
+say("⏳ 선생님께 결과를 보내는 중...");
+fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload())}).then(()=>{
+ say("⏳ 저장되었는지 확인하는 중...");let tries=0;
+ const chk=()=>{tries++;fetch(ENDPOINT+"?action=check&num="+encodeURIComponent(S.num)+"&t="+Date.now()).then(r=>r.json()).then(d=>{if(d.found){S.sent=1;save();say("✅ 선생님께 결과가 저장되었어요. ("+new Date().toLocaleTimeString("ko-KR")+")")}else if(tries<4)setTimeout(chk,2000);else say('⚠ 서버에서 저장을 확인하지 못했어요. 선생님께 말씀드리거나 <a href="#" onclick="submit();return false">다시 보내기</a>를 눌러 주세요.')}).catch(()=>{if(tries<4)setTimeout(chk,2000);else say('⚠ 저장 확인에 실패했어요. <a href="#" onclick="submit();return false">다시 보내기</a>')})};
+ setTimeout(chk,2000)}).catch(()=>say('⚠ 전송에 실패했어요. 인터넷 연결을 확인하고 <a href="#" onclick="submit();return false">다시 보내기</a>'))}
 function render(){let h="";const st=S.step;
 if(st==1){const i=S.ans.length;if(i>=Q.length){go(2);return}
 h=`<div class="card">${head(1,"나의 디지털 점수 검사")}<span class="badge">${Q[i][0]}</span><p class="small">${i+1} / ${Q.length}</p><h2>${Q[i][1]}</h2>${L.map((l,n)=>`<button class="choice" onclick="ans(${n+1})">${n+1}  ${l}</button>`).join("")}${i?'<button class="btn ghost" onclick="S.ans.pop();save();render()">← 이전 문항</button>':''}</div>`}
@@ -103,7 +107,7 @@ function poster(){const cv=$("cv"),t=document.createElement("canvas").getContext
 c.fillStyle="#5b63e6";c.fillRect(0,0,1080,H);c.fillStyle="#fff";c.beginPath();c.roundRect(40,40,1000,H-80,36);c.fill();layout(c,true)}
 function dl(){const a=document.createElement("a");a.download="디지털_실천약속서.png";a.href=$("cv").toDataURL("image/png");a.click()}
 function chkStart(){const n=$("num").value.trim(),m=$("nm").value.trim();$("go").style.opacity=(n&&m)?1:.55;if(n&&m)$("warn").textContent=""}
-function fixNum(){$("num").value=$("num").value.replace(/\D/g,"");chkStart()}
+function fixNum(){$("num").value=$("num").value.replace(/[^0-9]/g,"");chkStart()}
 ["input","change","keyup"].forEach(ev=>{$("num").addEventListener(ev,fixNum);$("nm").addEventListener(ev,chkStart)});
 $("go").addEventListener("click",()=>{const n=$("num").value.trim(),m=$("nm").value.trim();if(!n||!m){$("warn").textContent="⚠ 학번과 이름을 모두 입력해야 시작할 수 있어요.";$("warn").style.color="#d32f2f";(n?$("nm"):$("num")).focus();return}S.num=n;S.name=m;S.who=n+" "+m;save();$("s0").classList.add("hidden");app.classList.remove("hidden");render()});
 $("reset").onclick=e=>{e.preventDefault();if(confirm("저장된 활동을 지울까요?")){ST.del(KEY);location.reload()}};
