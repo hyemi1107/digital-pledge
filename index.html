@@ -126,4 +126,8 @@ fetch(ENDPOINT+"?action=list&grade="+encodeURIComponent(g)+"&ban="+encodeURIComp
 function teacherShow(g,b){const n=TR.length;const avg=n?Math.round(TR.reduce((a,r)=>a+Number(r[2]||0),0)/n*10)/10:0;
 const rows=TR.map((r,i)=>`<tr style="cursor:pointer;border-top:1px solid #e6e9f0" onclick="td(${i})"><td style="padding:10px 6px">${esc(r[0])}</td><td>${esc(r[1])}</td><td><b>${esc(r[2])}</b></td><td>${esc(r[3])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td>${esc(r[6])}</td><td>${esc(r[7])}</td></tr><tr id="d${i}" class="hidden"><td colspan="8" style="padding:12px;background:#f7f8fc;line-height:1.8">${tdetail(TR[i])}</td></tr>`).join("");
 $("tres").innerHTML=`<div class="card"><h2>${esc(g)}학년 ${esc(b)}반 · 제출 ${n}명${n?" · 평균 "+avg+"점":""}</h2>${n?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px;min-width:560px"><tr style="text-align:left;color:#697386"><th style="padding:8px 6px">학번</th><th>이름</th><th>총점</th><th>유형</th><th>자기관리</th><th>존중</th><th>안전</th><th>정보·AI</th></tr>${rows}</table></div><p class="small">학생 행을 누르면 실천 약속을 볼 수 있어요. (영역별 만점 15점 · 총점 60점)</p><button class="btn ghost" onclick="tcsv()">⬇ 엑셀(CSV)로 저장</button>`:"<p>아직 제출한 학생이 없어요.</p>"}</div>`}
-function tdetail(r){const la
+function tdetail(r){const lab=["","","","","","","","","실천 영역","약속 1","약속 2","약속 3","어려울 때 대처","제출 시각"];let h="";[8,9,10,11,12,13].forEach(k=>{if(r[k])h+=`<div><b>${lab[k]}</b> ${esc(r[k])}</div>`});return h}
+function td(i){$("d"+i).classList.toggle("hidden")}
+function tcsv(){const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';const t=[TH,...TR].map(r=>r.map(q).join(",")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv;charset=utf-8"}));a.download="실천약속_결과.csv";a.click()}
+if(/[?&]teacher/.test(location.search))teacherInit();
+</script></body></html>
